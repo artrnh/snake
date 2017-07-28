@@ -6,8 +6,7 @@
   </head>
   <body>
     <canvas id="snake-game" width="400" height="400"></canvas>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script type="text/javascript">
+    <script>
       "use strict";
 
       var canvas = document.getElementById("snake-game");
@@ -27,9 +26,9 @@
         40: "down"
       };
 
-      $("body").keydown(function(event) {
+      window.addEventListener("keydown", function(event) {
         var newDirection = directions[event.keyCode];
-        if(newDirection !== undefined) {
+        if (newDirection !== undefined) {
           snake.setDirection(newDirection);
         }
       });
