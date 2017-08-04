@@ -2,10 +2,52 @@
 <html>
   <head>  
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+
+        height: 100vh;
+        background: #F79D2D;
+        font-family: Georgia, serif;
+        font-size: 24px;
+      }
+
+      .wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 700px;
+      }
+
+      canvas {
+        width: 600px;
+        height: 600px;
+        margin-bottom: 10px;
+        background: #C2390D;
+        box-shadow: 10px 5px 10px rgba(0, 0, 0, .5);
+      }
+
+      p {
+        margin: 0;
+      }
+
+      span {
+        text-align: center;
+        font-size: 36px;
+      }
+    </style>
     <title>Snake</title>
   </head>
   <body>
-    <canvas id="snake-game" width="400" height="400"></canvas>
+    <div class="wrapper">
+      <p></p>
+      <canvas id="snake-game" width="600" height="600"></canvas>
+      <span></span>
+    </div>
     <script>
       "use strict";
 
@@ -14,10 +56,11 @@
       var width = canvas.width;
       var height = canvas.height;
 
-      var blockSize = 10;
+      var blockSize = 20;
       var widthInBlocks = width / blockSize;
       var heightInBlocks = height / blockSize;
       var score = 0;
+      var checkGameOver = false;
 
       var directions = {
         37: "left",
@@ -30,6 +73,9 @@
         var newDirection = directions[event.keyCode];
         if (newDirection !== undefined) {
           snake.setDirection(newDirection);
+        }
+        if (checkGameOver && event.keyCode === 32) {
+          location.reload();
         }
       });
 
@@ -80,7 +126,7 @@
 
         this.draw = function() {
           for (var i = 0; i < this.segments.length; i++) {
-            this.segments[i].drawSquare("Blue");
+            this.segments[i].drawSquare("#000000");
           }
         };
 
@@ -109,6 +155,7 @@
 
           if(this.checkCollision(newHead)) {
             gameOver();
+            checkGameOver = true;
             return;
           }
 
@@ -159,7 +206,7 @@
         this.position = new Block(10, 10);
 
         this.draw = function() {
-          this.position.drawCircle("LimeGreen");
+          this.position.drawCircle("#32B9B5");
         };
 
         this.move = function() {
@@ -179,11 +226,8 @@
       }
 
       function drawScore() {
-        ctx.font = "16px Arial";
-        ctx.fillStyle = "Black";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText("Score: " + score, blockSize, blockSize);
+        var p = document.querySelector("p");
+        p.innerText = "Score: " + score;
       }
 
       function circle(x, y, radius, fillCircle) {
@@ -198,11 +242,12 @@
 
       function gameOver() {
         clearInterval(intervalId);
-        ctx.font = "60px Arial";
-        ctx.fillStyle = "Black";
+        ctx.font = "80px Georgia";
+        ctx.fillStyle = "#000000";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("Game Over!", width / 2, height / 2);
+        document.querySelector("span").innerText = "Press Space to play again!";
       }
     </script>
   </body>
