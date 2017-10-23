@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>  
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
@@ -51,88 +51,55 @@
     <script>
       "use strict";
 
-      var canvas = document.getElementById("snake-game");
-      var ctx = canvas.getContext("2d");
-      var width = canvas.width;
-      var height = canvas.height;
+      class Block {
 
-      var blockSize = 20;
-      var widthInBlocks = width / blockSize;
-      var heightInBlocks = height / blockSize;
-      var score = 0;
-      var checkGameOver = false;
-
-      var directions = {
-        37: "left",
-        38: "up",
-        39: "right",
-        40: "down"
-      };
-
-      window.addEventListener("keydown", function(event) {
-        var newDirection = directions[event.keyCode];
-        if (newDirection !== undefined) {
-          snake.setDirection(newDirection);
+        constructor(col, row) {
+          this.col = col;
+          this.row = row;
         }
-        if (checkGameOver && event.keyCode === 32) {
-          location.reload();
-        }
-      });
 
-      var snake = new Snake();
-      var apple = new Apple();
-
-      var intervalId = setInterval(function() {
-        ctx.clearRect(0, 0, width, height);
-        drawScore();
-        snake.move();
-        snake.draw();
-        apple.draw();
-        drawBorder();
-      }, 100);
-
-      function Block(col, row) {
-        this.col = col;
-        this.row = row;
-
-        this.drawSquare = function(color) {
-          var x = this.col * blockSize;
-          var y = this.row * blockSize;
+        drawSquare(color) {
+          const x = this.col * blockSize;
+          const y = this.row * blockSize;
           ctx.fillStyle = color;
           ctx.fillRect(x, y, blockSize, blockSize);
-        };
-        
-        this.drawCircle = function(color) {
-          var centerX = this.col * blockSize + blockSize / 2;
-          var centerY = this.row * blockSize + blockSize / 2;
+        }
+
+        drawCircle(color) {
+          const centerX = this.col * blockSize + blockSize / 2;
+          const centerY = this.row * blockSize + blockSize / 2;
           ctx.fillStyle = color;
           circle(centerX, centerY, blockSize / 2, true);
-        };
+        }
 
-        this.equal = function(otherBlock) {
+        equal(otherBlock) {
           return this.col === otherBlock.col && this.row === otherBlock.row;
-        };
+        }
+
       }
 
-      function Snake() {
-        this.segments = [
-          new Block(7, 5),
-          new Block(6, 5),
-          new Block(5, 5)
-        ];
+      class Snake {
 
-        this.direction = "right";
-        this.nextDirection = "right";
+        constructor() {
+          this.segments = [
+            new Block(7, 5),
+            new Block(6, 5),
+            new Block(5, 5)
+          ];
 
-        this.draw = function() {
-          for (var i = 0; i < this.segments.length; i++) {
+          this.direction = "right";
+          this.nextDirection = "right";
+        }
+
+        draw() {
+          for (let i = 0; i < this.segments.length; i++) {
             this.segments[i].drawSquare("#000000");
           }
-        };
+        }
 
-        this.move = function() {
-          var head = this.segments[0];
-          var newHead;
+        move() {
+          const head = this.segments[0];
+          let newHead;
 
           this.direction = this.nextDirection;
 
@@ -148,12 +115,10 @@
               break;
             case "up":
               newHead = new Block(head.col, head.row - 1);
-              break;  
-            default:
               break;
           }
 
-          if(this.checkCollision(newHead)) {
+          if (this.checkCollision(newHead)) {
             gameOver();
             checkGameOver = true;
             return;
@@ -167,56 +132,62 @@
           } else {
             this.segments.pop();
           }
-        };
+        }
 
-        this.checkCollision = function(head) {
-          var leftBorder = (head.col === 0),
-          topBorder = (head.row === 0),
-          rightBorder = (head.col === widthInBlocks - 1),
-          bottomBorder = (head.row === heightInBlocks - 1);
+        checkCollision(head) {
+          const leftBorder = (head.col === 0),
+            topBorder = (head.row === 0),
+            rightBorder = (head.col === widthInBlocks - 1),
+            bottomBorder = (head.row === heightInBlocks - 1);
 
-          var wallCollision = leftBorder || rightBorder || topBorder || bottomBorder;
-          var selfCollision = false;
+          const wallCollision = leftBorder || rightBorder || topBorder || bottomBorder;
+          let selfCollision = false;
 
-          for (var i = 0; i < this.segments.length; i++) {
-            if(head.equal(this.segments[i])) {
+          for (let i = 0; i < this.segments.length; i++) {
+            if (head.equal(this.segments[i])) {
               selfCollision = true;
-            }            
+            }
           }
 
           return wallCollision || selfCollision;
-        };
+        }
 
-        this.setDirection = function(newDirection) {
+        setDirection(newDirection) {
           if (this.direction === "up" && newDirection === "down") {
             return;
-          } else if(this.direction === "down" && newDirection === "up") {
+          } else if (this.direction === "down" && newDirection === "up") {
             return;
-          } else if(this.direction === "left" && newDirection === "right") {
+          } else if (this.direction === "left" && newDirection === "right") {
             return;
-          } else if(this.direction === "right" && newDirection === "left") {
+          } else if (this.direction === "right" && newDirection === "left") {
             return;
           }
 
           this.nextDirection = newDirection;
-        };
+        }
+
       }
 
-      function Apple() {
-        this.position = new Block(10, 10);
+      class Apple extends Block {
 
-        this.draw = function() {
+        constructor() {
+          const block = super(10, 10);
+          this.position = block;
+        }
+
+        draw() {
           this.position.drawCircle("#32B9B5");
-        };
+        }
 
-        this.move = function() {
-          var randomCol = Math.floor(Math.random() * (widthInBlocks - 2)) + 1;
-          var randomRow = Math.floor(Math.random() * (heightInBlocks - 2)) + 1;
+        move() {
+          const randomCol = Math.floor(Math.random() * (widthInBlocks - 2)) + 1;
+          const randomRow = Math.floor(Math.random() * (heightInBlocks - 2)) + 1;
 
           this.position = new Block(randomCol, randomRow);
-        };
+        }
+
       }
-      
+
       function drawBorder() {
         ctx.fillStyle = "Black";
         ctx.fillRect(0, 0, width, blockSize);
@@ -225,15 +196,10 @@
         ctx.fillRect(width - blockSize, 0, blockSize, height);
       }
 
-      function drawScore() {
-        var p = document.querySelector("p");
-        p.innerText = "Score: " + score;
-      }
-
       function circle(x, y, radius, fillCircle) {
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2, false);
-        if(fillCircle) {
+        if (fillCircle) {
           ctx.fill();
         } else {
           ctx.stroke();
@@ -249,6 +215,50 @@
         ctx.fillText("Game Over!", width / 2, height / 2);
         document.querySelector("span").innerText = "Press Space to play again!";
       }
+
+      function gameLoop() {
+        ctx.clearRect(0, 0, width, height);
+        document.querySelector("p").innerText = "Score: " + score;
+        snake.move();
+        snake.draw();
+        apple.draw();
+        drawBorder();
+      }
+
+      const canvas = document.getElementById("snake-game");
+      const ctx = canvas.getContext("2d");
+      const width = canvas.width;
+      const height = canvas.height;
+
+      const blockSize = 20;
+      const widthInBlocks = width / blockSize;
+      const heightInBlocks = height / blockSize;
+      let score = 0;
+      let checkGameOver = false;
+
+      const directions = {
+        37: "left",
+        38: "up",
+        39: "right",
+        40: "down"
+      };
+
+      const snake = new Snake();
+      const apple = new Apple();
+
+      let intervalId = setInterval(function() {
+        gameLoop();
+      }, 100);
+
+      window.addEventListener("keydown", function (event) {
+        const newDirection = directions[event.keyCode];
+        if (newDirection !== undefined) {
+          snake.setDirection(newDirection);
+        }
+        if (checkGameOver && event.keyCode === 32) {
+          location.reload();
+        }
+      });
     </script>
   </body>
 </html>
