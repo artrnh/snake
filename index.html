@@ -29,6 +29,7 @@
         margin-bottom: 10px;
         background: #C2390D;
         box-shadow: 10px 5px 10px rgba(0, 0, 0, .5);
+		border-radius: 20px;
       }
 
       p {
@@ -128,7 +129,7 @@
 
           if (newHead.equal(apple.position)) {
             score++;
-            apple.move();
+            apple.create();
           } else {
             this.segments.pop();
           }
@@ -173,17 +174,41 @@
         constructor() {
           const block = super(10, 10);
           this.position = block;
+          let over=false;
+          do{
+            const randomCol = Math.floor(Math.random() * (widthInBlocks - 2)) + 1;
+            const randomRow = Math.floor(Math.random() * (heightInBlocks - 2)) + 1;
+            over=false;
+
+            this.position = new Block(randomCol, randomRow);
+
+            for (let i = 0; i < snake.segments.length; i++) {
+              if (snake.segments[i].col==randomCol&&snake.segments[i].row==randomRow) {
+                over = true;
+              }
+            }
+          }while(over);
         }
 
         draw() {
-          this.position.drawCircle("#32B9B5");
+          this.position.drawCircle("#52a955");
         }
 
-        move() {
-          const randomCol = Math.floor(Math.random() * (widthInBlocks - 2)) + 1;
-          const randomRow = Math.floor(Math.random() * (heightInBlocks - 2)) + 1;
+        create() {
+          let over=false;
+          do{
+            const randomCol = Math.floor(Math.random() * (widthInBlocks - 2)) + 1;
+            const randomRow = Math.floor(Math.random() * (heightInBlocks - 2)) + 1;
+            over=false;
 
-          this.position = new Block(randomCol, randomRow);
+            this.position = new Block(randomCol, randomRow);
+
+            for (let i = 0; i < snake.segments.length; i++) {
+              if (snake.segments[i].col==randomCol&&snake.segments[i].row==randomRow) {
+                over = true;
+              }
+            }
+          }while(over);
         }
 
       }
